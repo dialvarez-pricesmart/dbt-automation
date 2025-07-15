@@ -1,0 +1,70 @@
+name: dbt Core CI/CD
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  dbt_run:
+    name: Run dbt
+    runs-on: ubuntu-latest
+
+    env:
+      # Common secrets
+      DBT_ENV_SECRET_ACCOUNT: ${{ secrets.DBT_ENV_SECRET_ACCOUNT }}
+      DBT_ENV_SECRET_USER: ${{ secrets.DBT_ENV_SECRET_USER }}
+      DBT_ENV_SECRET_DATABASE: ${{ secrets.DBT_ENV_SECRET_DATABASE }}
+      DBT_ENV_SECRET_ROLE: ${{ secrets.DBT_ENV_SECRET_ROLE }}
+      DBT_ENV_SECRET_WAREHOUSE: ${{ secrets.DBT_ENV_SECRET_WAREHOUSE }}
+      DBT_ENV_SECRET_SCHEMA: ${{ secrets.DBT_ENV_SECRET_SCHEMA }}
+      DBT_PROFILES_DIR: ./dbt_profiles
+
+      # Key-pair secrets and path
+      DBT_PRIVATE_KEY_PATH: ${{ github.workspace }}/snowflake_key.p8
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Create Snowflake Private Key File from Secret
+        run: echo "${{ secrets.DBT_SNOWFLAKE_PRIVATE_KEY }}" > ${{ env.DBT_PRIVATE_KEY_PATH }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dbt and adapter
+        run: |
+          pip install dbt-snowflake cryptography
+
+      - name: Download production manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: prod-manifest
+          path: target
+        continue-on-error: true
+
+      - name: Run dbt dependencies
+        run: dbt deps
+
+      - name: Run Slim CI for PRs
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          dbt build --select state:modified+ --state ./target
+
+      - name: Run production models
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          dbt build --select state:new state:modified+ --state ./target
+
+      - name: Upload production manifest
+        if: ${{ github.event_name == 'push' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prod-manifest
+          path: target/manifest.json

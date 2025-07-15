@@ -1,0 +1,17 @@
+github_actions:
+  target: prod
+  outputs:
+    prod:
+      type: snowflake
+      account: "{{ env_var('DBT_ENV_SECRET_ACCOUNT') }}"
+      user: "{{ env_var('DBT_ENV_SECRET_USER') }}"
+
+      # Key-pair authentication settings
+      private_key_path: "{{ env_var('DBT_PRIVATE_KEY_PATH') }}"
+
+      role: "{{ env_var('DBT_ENV_SECRET_ROLE') }}" # Or your dbt role
+      database: "{{ env_var('DBT_ENV_SECRET_DATABASE') }}"
+      warehouse: "{{ env_var('DBT_ENV_SECRET_WAREHOUSE') }}"
+      schema: "{{ env_var('DBT_ENV_SECRET_SCHEMA') }}"
+      threads: 4
+      client_session_keep_alive: False
