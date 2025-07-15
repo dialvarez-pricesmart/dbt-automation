@@ -49,20 +49,21 @@ jobs:
           path: target
         continue-on-error: true
 
-      - name: Go to project path
-        run: cd snowflake_masters_code
-
       - name: Run dbt dependencies
-        run: dbt deps
+        run: |
+          cd ${{ github.workspace }}/snowflake_masters_code
+          dbt deps
 
       - name: Run Slim CI for PRs
         if: ${{ github.event_name == 'pull_request' }}
         run: |
+          cd ${{ github.workspace }}/snowflake_masters_code
           dbt build --select state:modified+ --state ./target
 
       - name: Run production models
         if: ${{ github.event_name == 'push' }}
         run: |
+          cd ${{ github.workspace }}/snowflake_masters_code
           dbt build --select state:new state:modified+ --state ./target
 
       - name: Upload production manifest
