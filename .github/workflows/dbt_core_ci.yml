@@ -21,7 +21,7 @@ jobs:
       DBT_ENV_SECRET_ROLE: ${{ secrets.DBT_ENV_SECRET_ROLE }}
       DBT_ENV_SECRET_WAREHOUSE: ${{ secrets.DBT_ENV_SECRET_WAREHOUSE }}
       DBT_ENV_SECRET_SCHEMA: ${{ secrets.DBT_ENV_SECRET_SCHEMA }}
-      DBT_PROFILES_DIR: ./dbt_profiles
+      DBT_PROFILES_DIR: ${{ github.workspace }}//dbt_profiles
 
       # Key-pair secrets and path
       DBT_PRIVATE_KEY_PATH: ${{ github.workspace }}/snowflake_key.p8
