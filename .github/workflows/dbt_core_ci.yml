@@ -49,6 +49,9 @@ jobs:
           path: target
         continue-on-error: true
 
+      - name: Go to project path
+        run: cd snowflake_masters_code
+
       - name: Run dbt dependencies
         run: dbt deps
 

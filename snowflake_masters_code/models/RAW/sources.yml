@@ -1,0 +1,51 @@
+version: 2
+
+sources:
+  - name: peicust
+    database: CDC
+    schema: PEICUST
+    quoting:
+      identifier: true
+    tables:
+      - name: F55637
+        identifier: F55637
+      - name: F57637
+        identifier: F57637
+      - name: F57637L
+        identifier: F57637L
+
+  - name: peicom
+    database: CDC
+    schema: PEICOM
+    quoting:
+      identifier: true
+    tables:
+      - name: F0005
+        identifier: F0005
+
+  - name: domo
+    database: DOMO
+    schema: WRITEBACK
+    quoting:
+      identifier: true
+    tables:
+      - name: DICT_exchange_rate
+        identifier: DICT_exchange_rate
+
+  - name: psmt_lakehouse_dev_as400
+    database: PSMT_LAKEHOUSE_DEV
+    schema: AS400
+    quoting:
+      identifier: true
+    tables:
+      - name: DICT_club_and_country_names
+        identifier: DICT_club_and_country_names
+
+  - name: psmt_lakehouse_dev_manual
+    database: PSMT_LAKEHOUSE_DEV
+    schema: MANUAL_FILES
+    quoting:
+      identifier: true
+    tables:
+      - name: DICT_MEMBERSHIP_TAX_BY_COUNTRY
+        identifier: DICT_MEMBERSHIP_TAX_BY_COUNTRY
