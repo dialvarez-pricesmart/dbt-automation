@@ -42,33 +42,48 @@ jobs:
         run: |
           pip install dbt-snowflake cryptography
 
+      # Try to download the manifest. If it doesn't exist, don't fail the step.
       - name: Download production manifest
         uses: actions/download-artifact@v4
         with:
-          name: prod-manifest
-          path: target
+          name: dbt-manifest
+          path: ${{ github.workspace }}/snowflake_masters_code
         continue-on-error: true
 
-      - name: Run dbt dependencies
+      - name: Run dbt
         run: |
+          # Check if the manifest.json exists.
           cd ${{ github.workspace }}/snowflake_masters_code
-          dbt deps
+          if [ -f "manifest.json" ]; then
+            echo "✅ Manifest found, running modified models only."
+            dbt build --select state:modified+ --state ./target --defer
+          else
+            echo "🤷 No manifest found, running all models for initial run."
+            dbt build
+          fi
 
-      - name: Run Slim CI for PRs
-        if: ${{ github.event_name == 'pull_request' }}
-        run: |
-          cd ${{ github.workspace }}/snowflake_masters_code
-          dbt build --select state:modified+ --state ./target
-
-      - name: Run production models
-        if: ${{ github.event_name == 'push' }}
-        run: |
-          cd ${{ github.workspace }}/snowflake_masters_code
-          dbt build --select state:new state:modified+ --state ./target
-
-      - name: Upload production manifest
-        if: ${{ github.event_name == 'push' }}
+      - name: Upload new manifest
         uses: actions/upload-artifact@v4
         with:
-          name: prod-manifest
-          path: target/manifest.json
+          name: dbt-manifest
+          path: ${{ github.workspace }}/snowflake_masters_code/target/manifest.json
+
+#      - name: Download production manifest
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: prod-manifest
+#          path: target
+#        continue-on-error: true
+#
+#      - name: Run production models
+#        if: ${{ github.event_name == 'push' }}
+#        run: |
+#          cd ${{ github.workspace }}/snowflake_masters_code
+#          dbt build --select state:new state:modified+ --state ./target
+#
+#      - name: Upload production manifest
+#        if: ${{ github.event_name == 'push' }}
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: prod-manifest
+#          path: target/manifest.json
