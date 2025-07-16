@@ -18,7 +18,7 @@ jobs:
       DBT_ENV_SECRET_ROLE: ${{ secrets.DBT_ENV_SECRET_ROLE }}
       DBT_ENV_SECRET_WAREHOUSE: ${{ secrets.DBT_ENV_SECRET_WAREHOUSE }}
       DBT_ENV_SECRET_SCHEMA: ${{ secrets.DBT_ENV_SECRET_SCHEMA }}
-      DBT_PROFILES_DIR: ${{ github.workspace }}//dbt_profiles
+      DBT_PROFILES_DIR: ${{ github.workspace }}/dbt_profiles
 
       # Key-pair secrets and path
       DBT_PRIVATE_KEY_PATH: ${{ github.workspace }}/snowflake_key.p8
@@ -27,10 +27,16 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v4
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: "us-east-1" # Or your S3 bucket region
+
       - name: Create Snowflake Private Key File from Secret
         run: |
           echo "${{ secrets.DBT_SNOWFLAKE_PRIVATE_KEY }}" > ${{ env.DBT_PRIVATE_KEY_PATH }}
-          cat ${{ env.DBT_PRIVATE_KEY_PATH }}
           
 
       - name: Set up Python
@@ -42,19 +48,17 @@ jobs:
         run: |
           pip install dbt-snowflake cryptography
 
-      # Try to download the manifest. If it doesn't exist, don't fail the step.
-      - name: Download production manifest
-        uses: actions/download-artifact@v4
-        with:
-          name: dbt-manifest
-          path: ${{ github.workspace }}/snowflake_masters_code
-        continue-on-error: true
+      # ⬇️ **MODIFIED STEP**: Download manifest from S3
+      - name: Download production manifest from S3
+        run: |
+          aws s3 cp s3://snowflake-stage1.s3.pricesmart.com/dbt/dbt-manifest.json ${{ github.workspace }}/snowflake_masters_code/target/manifest.json || echo "No manifest found in S3."
+        # The '||' part prevents an error if the file doesn't exist on the first run
 
       - name: Run dbt
         run: |
-          # Check if the manifest.json exists.
           cd ${{ github.workspace }}/snowflake_masters_code
-          if [ -f "manifest.json" ]; then
+          # The logic here remains the same!
+          if [ -f "target/manifest.json" ]; then
             echo "✅ Manifest found, running modified models only."
             dbt build --select state:modified+ --state ./target --defer
           else
@@ -62,28 +66,7 @@ jobs:
             dbt build
           fi
 
-      - name: Upload new manifest
-        uses: actions/upload-artifact@v4
-        with:
-          name: dbt-manifest
-          path: ${{ github.workspace }}/snowflake_masters_code/target/manifest.json
-
-#      - name: Download production manifest
-#        uses: actions/download-artifact@v4
-#        with:
-#          name: prod-manifest
-#          path: target
-#        continue-on-error: true
-#
-#      - name: Run production models
-#        if: ${{ github.event_name == 'push' }}
-#        run: |
-#          cd ${{ github.workspace }}/snowflake_masters_code
-#          dbt build --select state:new state:modified+ --state ./target
-#
-#      - name: Upload production manifest
-#        if: ${{ github.event_name == 'push' }}
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: prod-manifest
-#          path: target/manifest.json
+      # ⬆️ **MODIFIED STEP**: Upload manifest to S3
+      - name: Upload new manifest to S3
+        run: |
+          aws s3 cp ${{ github.workspace }}/snowflake_masters_code/target/manifest.json s3://snowflake-stage1.s3.pricesmart.com/dbt/dbt-manifest.json
