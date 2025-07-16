@@ -51,7 +51,7 @@ jobs:
       # ⬇️ **MODIFIED STEP**: Download manifest from S3
       - name: Download production manifest from S3
         run: |
-          aws s3 cp s3://snowflake-stage1.s3.pricesmart.com/dbt/dbt-manifest.json ${{ github.workspace }}/snowflake_masters_code/target/manifest.json || echo "No manifest found in S3."
+          aws s3 cp s3://snowflake-stage1.s3.pricesmart.com/dbt/manifest.json ${{ github.workspace }}/snowflake_masters_code/target/ || echo "No manifest found in S3."
         # The '||' part prevents an error if the file doesn't exist on the first run
 
       - name: Run dbt
@@ -69,4 +69,4 @@ jobs:
       # ⬆️ **MODIFIED STEP**: Upload manifest to S3
       - name: Upload new manifest to S3
         run: |
-          aws s3 cp ${{ github.workspace }}/snowflake_masters_code/target/manifest.json s3://snowflake-stage1.s3.pricesmart.com/dbt/dbt-manifest.json
+          aws s3 cp ${{ github.workspace }}/snowflake_masters_code/target/manifest.json s3://snowflake-stage1.s3.pricesmart.com/dbt/
