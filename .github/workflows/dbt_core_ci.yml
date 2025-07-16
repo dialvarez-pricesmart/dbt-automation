@@ -59,7 +59,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/snowflake_masters_code
           # The logic here remains the same!
-          if [ -f "target/manifest.json" ]; then
+          if [ -f "prod_state/manifest.json" ]; then
             echo "✅ Manifest found, running modified models only."
             dbt build --select state:modified+ --state ./prod_state --defer
           else

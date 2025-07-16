@@ -1,5 +1,5 @@
 {{ config(
-    alias='TESTTABLEPASCALCASE',
+    alias='TESTTABLE',
     materialized='view'
 ) }}
 
