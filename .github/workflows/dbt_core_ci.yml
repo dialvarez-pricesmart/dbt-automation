@@ -31,7 +31,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Create Snowflake Private Key File from Secret
-        run: echo "${{ secrets.DBT_SNOWFLAKE_PRIVATE_KEY }}" > ${{ env.DBT_PRIVATE_KEY_PATH }}
+        run: |
+          echo "${{ secrets.DBT_SNOWFLAKE_PRIVATE_KEY }}" > ${{ env.DBT_PRIVATE_KEY_PATH }}
+          cat ${{ env.DBT_PRIVATE_KEY_PATH }}
+          
 
       - name: Set up Python
         uses: actions/setup-python@v5
