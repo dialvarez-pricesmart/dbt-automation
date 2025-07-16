@@ -192,5 +192,6 @@ select
     "TaxPercent",
     "CountryCode",
     "TotalUsdCostNet"
+    "TotalUsdCostNet"/2 as "TotalUsdCostNet2"
 
 from tax_adjustments
