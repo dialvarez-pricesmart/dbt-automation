@@ -52,7 +52,7 @@ jobs:
       - name: Download production manifest from S3
         run: |
           mkdir -p ${{ github.workspace }}/snowflake_masters_code/prod_state
-          aws s3 cp s3://snowflake-stage1.s3.pricesmart.com/dbt/manifest.json ${{ github.workspace }}/snowflake_masters_code/prod_state/manifes.json || echo "No manifest found in S3."
+          aws s3 cp s3://snowflake-stage1.s3.pricesmart.com/dbt/manifest.json ${{ github.workspace }}/snowflake_masters_code/prod_state/manifest.json || echo "No manifest found in S3."
         # The '||' part prevents an error if the file doesn't exist on the first run
 
       - name: Run dbt
