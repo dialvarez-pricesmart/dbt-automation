@@ -4,7 +4,7 @@
 ) }}
 
 select 
-  trim("$HMCU") as "Cost_Cente",
+  trim("$HMCU") as "Cost_Center",
   "$H$ACC" as "Account_Number",
   "$HDOCO" as "Order_Number",
   case 
