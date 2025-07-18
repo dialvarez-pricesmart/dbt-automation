@@ -33,6 +33,10 @@ vars:
 # files using the `{{ config(...) }}` macro.
 models:
   snowflake_masters_code:
+    # MASTER:
+    #   schema: EJMOLINA
+    # PROD:
+    #   schema: '"Dialvarez"'
     # Config indicated by + and applies to all files under models/example/
-    example:
-      +materialized: view
+    # example:
+    #   +materialized: view
