@@ -2,13 +2,13 @@ name: dbt Core CI/CD
 
 on:
   push:
-    branches:
-      - dev
+    branches: [dev, preprod, prod]
 
 jobs:
   dbt_run:
     name: Run dbt
     runs-on: ubuntu-latest
+    environment: ${{ github.ref_name }}
 
     env:
       # Common secrets
@@ -56,15 +56,16 @@ jobs:
         # The '||' part prevents an error if the file doesn't exist on the first run
 
       - name: Run dbt
+      
         run: |
           cd ${{ github.workspace }}/snowflake_masters_code
           # The logic here remains the same!
           if [ -f "prod_state/manifest.json" ]; then
             echo "✅ Manifest found, running modified models only."
-            dbt build --select state:modified+ --state ./prod_state --defer
+            dbt build --select state:modified+ --state ./prod_state --defer --vars "raw_schema: '${{ secrets.SCHEMA }}'"
           else
             echo "🤷 No manifest found, running all models for initial run."
-            dbt build
+            dbt build --var raw_schema=${{ secrets.SCHEMA }}
           fi
 
       # ⬆️ **MODIFIED STEP**: Upload manifest to S3

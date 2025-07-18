@@ -49,3 +49,11 @@ sources:
     tables:
       - name: DICT_MEMBERSHIP_TAX_BY_COUNTRY
         identifier: DICT_MEMBERSHIP_TAX_BY_COUNTRY
+  - name: dynamic_source_test
+    database: PLAYGROUND
+    schema: "{{ var('raw_schema') }}"
+    quoting:
+      identifier: true
+    tables:
+      - name: T1
+        identifier: T1
