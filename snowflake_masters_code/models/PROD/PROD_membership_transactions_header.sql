@@ -1,5 +1,5 @@
 {{ config(
-    alias='PROD_membership_transaction_header',
+    alias='"ProdMembershipTransactionHeader"',
     materialized='view'
 ) }}
 
