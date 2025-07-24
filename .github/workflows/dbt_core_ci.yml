@@ -2,13 +2,13 @@ name: dbt Core CI/CD
 
 on:
   push:
-    branches: [dev, preprod, prod]
+    branches: [dev-code, preprod-code, prod-code]
 
 jobs:
   dbt_run:
     name: Run dbt
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name }}
+    environment: ${{ replace(github.ref_name, '-code', '') }}
 
     env:
       # Common secrets
@@ -24,6 +24,11 @@ jobs:
       DBT_PRIVATE_KEY_PATH: ${{ github.workspace }}/snowflake_key.p8
 
     steps:
+      - name: Testing envs
+        run: |
+          echo "This is the original: ${{ github.ref_name }}"
+          echo "This is the replacement: ${{ replace(github.ref_name, '-code', '') }}"
+       
       - name: Check out the repo
         uses: actions/checkout@v4
 
