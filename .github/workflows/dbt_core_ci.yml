@@ -8,7 +8,7 @@ jobs:
   dbt_run:
     name: Run dbt
     runs-on: ubuntu-latest
-    environment: ${{ replace(github.ref_name, '-code', '') }}
+    environment: ${{ github.ref_name == 'dev-code' && 'dev' || github.ref_name == 'preprod-code' && 'preprod' || github.ref_name == 'prod-code' && 'prod' }}
 
     env:
       # Common secrets
