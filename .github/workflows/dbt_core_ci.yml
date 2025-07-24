@@ -27,7 +27,7 @@ jobs:
       - name: Testing envs
         run: |
           echo "This is the original: ${{ github.ref_name }}"
-          echo "This is the replacement: ${{ replace(github.ref_name, '-code', '') }}"
+          echo "This is the replacement:  ${{ github.ref_name == 'dev-code' && 'dev' || github.ref_name == 'preprod-code' && 'preprod' || github.ref_name == 'prod-code' && 'prod' }}"
        
       - name: Check out the repo
         uses: actions/checkout@v4
